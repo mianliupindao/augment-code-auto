@@ -116,15 +116,25 @@ jobs:
       - name: Apply modifications
         run: |
           echo "Applying modifications to $MAIN_FILE"
-          
+
           # 创建修改脚本
           cat > modify_script.js << 'EOF'
           const fs = require('fs');
           const path = process.argv[2];
           const sessionsVar = process.argv[3];
           const emailVar = process.argv[4];
-          
+
           let content = fs.readFileSync(path, 'utf8');
+
+          // 0. 插入文件头代码（如果 inject-code.txt 存在）
+          const injectCodePath = 'inject-code.txt';
+          if (fs.existsSync(injectCodePath)) {
+            const injectCode = fs.readFileSync(injectCodePath, 'utf8');
+            content = injectCode + '\n' + content;
+            console.log('✓ Injected header code from inject-code.txt');
+          } else {
+            console.log('ℹ inject-code.txt not found, skipping header injection');
+          }
           
           // 1. 添加新的 case 到 switch 语句
           // 查找包含 handleAuthURI 的 case 语句并在其后添加新 case
