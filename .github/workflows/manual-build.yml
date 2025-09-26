@@ -284,9 +284,14 @@ jobs:
           prerelease: false
 
       - name: Send file to Telegram channel
-        if: ${{ success() }}
-        run: |
-          curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
-            -F chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -F document="augment-vscode-modified-v${{ env.VERSION }}.vsix" \
-            --form-string caption="Augment Code Auto Updated\nrepo: ${{ github.repository }}\nsha:  ${{ github.sha }}"
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            
+            Repository: ${{ github.repository }}
+          
+          document: augment-vscode-modified-v${{ env.VERSION }}.vsix
