@@ -283,3 +283,11 @@ jobs:
             augment-vscode-modified-v${{ env.VERSION }}.vsix
           draft: false
           prerelease: false
+          
+      - name: Send file to Telegram channel
+        if: ${{ success() }}
+        run: |
+          curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
+            -F chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -F document="augment-vscode-modified-v${{ env.VERSION }}.vsix" \
+            --form-string caption="Augment Code Auto Updated\nrepo: ${{ github.repository }}\nsha:  ${{ github.sha }}"
