@@ -288,4 +288,12 @@ jobs:
           curl -sS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
             -F chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
             -F document="@augment-vscode-modified-v${{ env.VERSION }}.vsix" \
-            --form-string caption="📦 新构建产物\nrepo: ${{ github.repository }}\nsha:  ${{ github.sha }}"
+            --form-string caption="
+            
+            修改内容：
+            - 添加自动登录回调
+            - 添加防封注入
+
+            基于原版本: ${{ env.VERSION }}
+            
+            "
