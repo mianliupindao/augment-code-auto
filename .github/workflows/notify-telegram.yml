@@ -23,6 +23,7 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           COMMENT_BODY: ${{ github.event.comment.body }}
           SENDER: ${{ github.event.sender.login }}
+          REPO_NAME: ${{ github.repository }}
         run: |
           # 选用正文：Issue 事件用 ISSUE_BODY，评论事件用 COMMENT_BODY
           if [ "$EVENT_NAME" = "issue_comment" ]; then
