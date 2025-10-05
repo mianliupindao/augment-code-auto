@@ -31,7 +31,8 @@ jobs:
         run: |
           PUBLISHER="augment"
           EXTENSION_NAME="vscode-augment"
-          VSIX_URL="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${PUBLISHER}/vsextensions/${EXTENSION_NAME}/latest/vspackage"
+          VERSION="0.528.0"
+          VSIX_URL="https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${PUBLISHER}/vsextensions/${EXTENSION_NAME}/${VERSION}/vspackage"
           curl -L --compressed -o original.vsix "${VSIX_URL}"
           echo "VSIX downloaded successfully."
 
