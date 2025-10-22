@@ -9,7 +9,8 @@ on:
 jobs:
   send_to_telegram:
     runs-on: ubuntu-latest
-    if: ${{ github.event.sender.type != 'Bot' && github.event.sender.login != 'github-actions[bot]' }}
+    if: ${{ github.event.sender.type != 'Bot' && github.event.sender.login != 'github-actions[bot]' && github.event.sender.login != github.repository_owner }}
+
 
     steps:
       - name: Compose and send message
@@ -47,16 +48,47 @@ jobs:
             fi
           fi
 
-          # 组装消息（Markdown），尽量避免特殊字符导致解析失败
-          # 如果你遇到解析报错，可把 parse_mode 改为 HTML，或去掉 parse_mode。
+          # 转义 MarkdownV2 特殊字符
+          # MarkdownV2 需要转义的字符: _ * [ ] ( ) ~ ` > # + - = | { } . !
+          escape_markdown() {
+            echo "$1" | sed -e 's/\\/\\\\/g' \
+                            -e 's/_/\\_/g' \
+                            -e 's/\*/\\*/g' \
+                            -e 's/\[/\\[/g' \
+                            -e 's/\]/\\]/g' \
+                            -e 's/(/\\(/g' \
+                            -e 's/)/\\)/g' \
+                            -e 's/~/\\~/g' \
+                            -e 's/`/\\`/g' \
+                            -e 's/>/\\>/g' \
+                            -e 's/#/\\#/g' \
+                            -e 's/+/\\+/g' \
+                            -e 's/-/\\-/g' \
+                            -e 's/=/\\=/g' \
+                            -e 's/|/\\|/g' \
+                            -e 's/{/\\{/g' \
+                            -e 's/}/\\}/g' \
+                            -e 's/\./\\./g' \
+                            -e 's/!/\\!/g'
+          }
+
+          # 转义所有文本内容
+          BODY_ESCAPED=$(escape_markdown "$BODY")
+          TITLE_ESCAPED=$(escape_markdown "$TITLE")
+          REPO_ESCAPED=$(escape_markdown "$REPO_NAME")
+          SENDER_ESCAPED=$(escape_markdown "$SENDER")
+          ACTION_ESCAPED=$(escape_markdown "$ACTION")
+
+          # 组装消息（MarkdownV2）
+          
           MESSAGE="
           🔔 GitHub ${WHAT}
-          \`${REPO_NAME}\`
-          [Issue](${URL}): *${TITLE}*
+          \`${REPO_ESCAPED}\`
+          [Issue](${URL}): *${TITLE_ESCAPED}*
 
-          > ${BODY}
-          
-          ${ACTION} by \`${SENDER}\`
+          ${BODY_ESCAPED}
+
+          ${ACTION_ESCAPED} by \`${SENDER_ESCAPED}\`
           "
 
           curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
